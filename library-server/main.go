@@ -2,7 +2,9 @@ package main
 
 import (
 	db "library-server/DB"
+	"library-server/adapter"
 	"library-server/routes"
+	"log"
 	"os"
 
 	_ "library-server/docs" // Import swagger docs
@@ -19,9 +21,22 @@ import (
 // @host localhost:3000
 // @BasePath /
 func main() {
+	// Initialize RabbitMQ connection
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		rabbitMQURL = "amqp://guest:guest@localhost:5672/"
+	}
+
+	rabbitmq, err := adapter.NewRabbitMQ(rabbitMQURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	defer rabbitmq.Close()
+
+	log.Println("Connected to RabbitMQ")
 	server := gin.Default()
 	godotenv.Load()
-	db.Connect()
+	db.InitializeDatabase()
 
 	// Swagger documentation route
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -31,6 +46,9 @@ func main() {
 
 	authRoutes := server.Group("/auth")
 	routes.AuthRoutes(authRoutes)
+
+	bookRoutes := server.Group("/books")
+	routes.BookRoutes(bookRoutes)
 
 	server.Run(os.Getenv("PORT"))
 }
