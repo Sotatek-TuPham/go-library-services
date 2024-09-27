@@ -50,6 +50,9 @@ func main() {
 	bookRoutes := server.Group("/books")
 	routes.BookRoutes(bookRoutes)
 
+	receiptRoutes := server.Group("/receipts")
+	routes.ReceiptRoutes(receiptRoutes)
+
 	server.Run(os.Getenv("PORT"))
 }
 

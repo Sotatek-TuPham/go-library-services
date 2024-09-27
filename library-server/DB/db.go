@@ -63,6 +63,6 @@ func Connect() {
 		db.Exec("INSERT INTO admins (username, password) VALUES (?, ?)", "admin", string(hashedPassword))
 	}
 
-	db.AutoMigrate(&model.Admin{}, &model.Book{}, &model.Category{})
+	db.AutoMigrate(&model.Admin{}, &model.Book{}, &model.Category{}, &model.Receipt{})
 	DB = db
 }

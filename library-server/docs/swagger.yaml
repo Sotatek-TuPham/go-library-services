@@ -34,6 +34,18 @@ definitions:
       name:
         type: string
     type: object
+  model.Receipt:
+    type: object
+  model.ReceiptStatus:
+    enum:
+    - pending
+    - owned
+    - returned
+    type: string
+    x-enum-varnames:
+    - ReceiptStatusPending
+    - ReceiptStatusOwned
+    - ReceiptStatusReturned
 host: localhost:3000
 info:
   contact: {}
@@ -417,4 +429,263 @@ paths:
       summary: Health check endpoint
       tags:
       - health
+  /receipts:
+    get:
+      description: Get all receipts with pagination
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all receipts
+      tags:
+      - receipts
+    post:
+      consumes:
+      - application/json
+      description: Create a new receipt with the input payload
+      parameters:
+      - description: Create receipt
+        in: body
+        name: receipt
+        required: true
+        schema:
+          $ref: '#/definitions/model.Receipt'
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Receipt'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new receipt
+      tags:
+      - receipts
+  /receipts/{id}:
+    delete:
+      description: Delete a receipt by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a receipt
+      tags:
+      - receipts
+    get:
+      description: Get a single receipt by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Receipt'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a receipt by ID
+      tags:
+      - receipts
+  /receipts/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of an existing receipt
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: New receipt status
+        in: body
+        name: status
+        required: true
+        schema:
+          type: string
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a receipt's status
+      tags:
+      - receipts
+  /receipts/user/{user_id}:
+    get:
+      description: Get all receipts for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Receipt'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get receipts by user ID
+      tags:
+      - receipts
 swagger: "2.0"
