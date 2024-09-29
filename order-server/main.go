@@ -35,6 +35,8 @@ func main() {
 
 	routes.AuthRoutes(server)
 
+	routes.UserRoutes(server)
+
 	server.Run(os.Getenv("PORT"))
 }
 

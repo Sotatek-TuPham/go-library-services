@@ -2,7 +2,6 @@ package main
 
 import (
 	db "library-server/DB"
-	"library-server/adapter"
 	"library-server/routes"
 	"log"
 	"os"
@@ -27,11 +26,11 @@ func main() {
 		rabbitMQURL = "amqp://guest:guest@localhost:5672/"
 	}
 
-	rabbitmq, err := adapter.NewRabbitMQ(rabbitMQURL)
-	if err != nil {
-		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
-	}
-	defer rabbitmq.Close()
+	// rabbitmq, err := adapter.NewRabbitMQ(rabbitMQURL)
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	// }
+	// defer rabbitmq.Close()
 
 	log.Println("Connected to RabbitMQ")
 	server := gin.Default()

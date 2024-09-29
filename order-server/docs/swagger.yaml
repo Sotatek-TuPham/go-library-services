@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  handler.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handler.PlaceReceiptRequest:
+    properties:
+      book_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   handler.RegisterUserInput:
     properties:
       email:
@@ -13,6 +25,17 @@ definitions:
     - email
     - password
     - username
+    type: object
+  service.Receipt:
+    properties:
+      book_id:
+        type: integer
+      date:
+        type: string
+      id:
+        type: integer
+      user_id:
+        type: integer
     type: object
 host: localhost:3001
 info:
@@ -98,4 +121,105 @@ paths:
       summary: Health check endpoint
       tags:
       - health
+  /receipts:
+    post:
+      consumes:
+      - application/json
+      description: Place a new receipt for a user and book
+      parameters:
+      - description: Receipt details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.PlaceReceiptRequest'
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Place a new receipt
+      tags:
+      - receipts
+  /receipts/{id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancel an existing receipt
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Cancel a receipt
+      tags:
+      - receipts
+  /users/receipts:
+    get:
+      consumes:
+      - application/json
+      description: Get receipts for the authenticated user
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Receipts
+          schema:
+            items:
+              $ref: '#/definitions/service.Receipt'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get receipts for authenticated user
+      tags:
+      - receipts
 swagger: "2.0"
