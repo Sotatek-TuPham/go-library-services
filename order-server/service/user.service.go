@@ -1,9 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 )
@@ -29,7 +31,7 @@ func (s *UserService) PlaceReceipt(ctx context.Context, userID, bookID uint) err
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-
+	req.Body = io.NopCloser(bytes.NewBuffer([]byte(fmt.Sprintf(`{"user_id": %d, "book_id": %d}`, userID, bookID))))
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send request: %w", err)
@@ -44,13 +46,15 @@ func (s *UserService) PlaceReceipt(ctx context.Context, userID, bookID uint) err
 }
 
 func (s *UserService) CancelReceipt(ctx context.Context, receiptID uint) error {
-	url := fmt.Sprintf("%s/receipts/%d/cancel", s.baseURL, receiptID)
+	url := fmt.Sprintf("%s/receipts/%d/status", s.baseURL, receiptID)
 
-	req, err := http.NewRequestWithContext(ctx, "POST", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "PATCH", url, nil)
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
+	req.Header.Set("Content-Type", "application/json")
+	req.Body = io.NopCloser(bytes.NewBuffer([]byte(`{"status": "canceled"}`)))
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send request: %w", err)

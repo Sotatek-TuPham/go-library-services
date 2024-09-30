@@ -46,6 +46,28 @@ func GetReceiptByID(id uint) (*model.Receipt, error) {
 
 func UpdateReceiptStatus(id uint, newStatus model.ReceiptStatus) error {
 	result := db.DB.Model(&model.Receipt{}).Where("id = ?", id).Update("status", newStatus)
+	// Get the receipt to check its current status
+	var receipt model.Receipt
+	if err := db.DB.First(&receipt, id).Error; err != nil {
+		return err
+	}
+
+	// Update book status based on the new receipt status
+	var bookStatus model.BookStatus
+	switch newStatus {
+	case model.ReceiptStatusPending:
+		bookStatus = model.BookStatusPlaced
+	case model.ReceiptStatusReturned:
+		bookStatus = model.BookStatusAvailable
+	default:
+		// For other statuses, we don't change the book status
+		return nil
+	}
+
+	// Update the book status
+	if err := db.DB.Model(&model.Book{}).Where("id = ?", receipt.BookID).Update("status", bookStatus).Error; err != nil {
+		return err
+	}
 	return result.Error
 }
 

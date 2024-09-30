@@ -12,6 +12,7 @@ const (
 	ReceiptStatusPending  ReceiptStatus = "pending"
 	ReceiptStatusOwned    ReceiptStatus = "owned"
 	ReceiptStatusReturned ReceiptStatus = "returned"
+	ReceiptStatusCanceled ReceiptStatus = "canceled"
 )
 
 type Receipt struct {
