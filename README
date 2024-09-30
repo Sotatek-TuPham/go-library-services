@@ -1,0 +1,138 @@
+# Library Management System
+
+## Running the servers with Docker
+
+To run both servers using Docker, follow these steps:
+
+1. Make sure you have Docker and Docker Compose installed on your system.
+
+2. Navigate to the root directory of the project (where both `library-server` and `order-server` directories are located).
+
+3. Create a `docker-compose.yml` file in the root directory with the following content:
+
+   ```yaml
+   version: '3'
+   services:
+     library-server:
+       build:
+         context: ./library-server
+         dockerfile: Dockerfile
+       ports:
+         - "3000:3000"
+       depends_on:
+         - db
+       environment:
+         - DB_HOST=db
+         - DB_PORT=5432
+         - DB_USER=postgres
+         - DB_PASSWORD=postgres
+         - DB_NAME=library_db
+         - PORT=3000
+
+     order-server:
+       build:
+         context: ./order-server
+         dockerfile: Dockerfile
+       ports:
+         - "3001:3001"
+       environment:
+         - PORT=3001
+         - LIBRARY_SERVER_URL=http://library-server:3000
+
+     db:
+       image: postgres:13
+       environment:
+         - POSTGRES_USER=postgres
+         - POSTGRES_PASSWORD=postgres
+         - POSTGRES_DB=library_db
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+
+   volumes:
+     postgres_data:
+   ```
+
+4. Open a terminal in the root directory and run the following command to build and start the containers:
+
+   ```
+   docker-compose up --build
+   ```
+
+5. Wait for the containers to build and start. You should see logs from both servers in the terminal.
+
+6. Once the servers are running, you can access them at:
+   - Library Server: http://localhost:3000/swagger/index.html
+   - Order Server: http://localhost:3001
+
+To stop the servers, press `Ctrl+C` in the terminal where docker-compose is running, or run `docker-compose down` in another terminal in the same directory.
+
+
+This project consists of two servers: `library-server` and `order-server`. Follow the instructions below to set up and run both servers.
+
+## Prerequisites
+
+- Go (version 1.16 or later)
+- PostgreSQL database
+
+## Setting up the library-server
+
+1. Navigate to the library-server directory:
+   ```
+   cd path/to/library-server
+   ```
+
+2. Install dependencies:
+   ```
+   go mod tidy
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the library-server directory with the following content:
+   ```
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_USER=your_username
+   DB_PASSWORD=your_password
+   DB_NAME=library_db
+   PORT=3000
+   ```
+   Replace the values with your actual database credentials.
+
+4. Run the server:
+   ```
+   go run main.go
+   ```
+
+The library-server should now be running on `http://localhost:3000/swagger/index.html`.
+
+## Setting up the order-server
+
+1. Navigate to the order-server directory:
+   ```
+   cd path/to/order-server
+   ```
+
+2. Install dependencies:
+   ```
+   go mod tidy
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the order-server directory with the following content:
+   ```
+   PORT=3001
+   LIBRARY_SERVER_URL=http://localhost:3001
+   ```
+
+4. Run the server:
+   ```
+   go run main.go
+   ```
+
+The order-server should now be running on `http://localhost:3001/swagger/index.html`.
+
+## Testing the System
+
+With both servers running, you can now test the Library Management System. Use tools like cURL or Postman to send requests to the appropriate endpoints.
+
+For example, to place a receipt (borrow a book) using the order-server:
